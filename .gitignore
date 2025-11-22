@@ -1,0 +1,4 @@
+.env
+blog-aggregator.exe
+secrets.go
+internal/config/
