@@ -1,31 +1,56 @@
 package main
 
 import (
-	"fmt"
+	"database/sql"
 	"log"
+	"os"
 
+	_ "github.com/lib/pq"
 	"github.com/rara-ch/blog-aggregator/internal/config"
+	"github.com/rara-ch/blog-aggregator/internal/database"
 )
 
 func main() {
-	doConfig()
-}
-
-func doConfig() {
 	cfg, err := config.Read()
 	if err != nil {
 		log.Fatalf("unable to read config: %v", err)
 	}
 
-	cfg.CurrentUsername = username
-	err = cfg.SetUser()
+	db, err := sql.Open("postgres", cfg.DBUrl)
 	if err != nil {
-		log.Fatalf("unable to set username: %v", err)
+		log.Fatalf("unable to open database: %v", err)
 	}
 
-	newCfg, err := config.Read()
-	if err != nil {
-		log.Fatalf("unable to read config: %v", err)
+	s := &state{
+		db:  database.New(db),
+		cfg: cfg,
 	}
-	fmt.Println(newCfg)
+
+	cmds := commands{
+		handlerFuncs: map[string]func(*state, command) error{},
+	}
+
+	cmds.register("login", handlerLogin)
+	cmds.register("register", handlerRegister)
+	cmds.register("reset", handlerReset)
+
+	args := os.Args
+	if len(args) < 2 {
+		log.Fatal("not enough arguments")
+	}
+
+	cmd := command{
+		name: args[1],
+		args: args[2:],
+	}
+
+	err = cmds.run(s, cmd)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+type state struct {
+	cfg config.Config
+	db  *database.Queries
 }

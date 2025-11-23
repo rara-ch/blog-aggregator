@@ -51,7 +51,8 @@ func Read() (Config, error) {
 	return config, nil
 }
 
-func (c *Config) SetUser() error {
+func (c *Config) SetUser(username string) error {
+	c.CurrentUsername = username
 	configJson, err := json.Marshal(c)
 	if err != nil {
 		return err
