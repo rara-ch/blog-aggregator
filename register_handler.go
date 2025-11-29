@@ -13,7 +13,7 @@ import (
 
 func handlerRegister(s *state, cmd command) error {
 	if len(cmd.args) < 1 {
-		return errors.New("the login handler expects a single argument, the user's name")
+		return errors.New("the register handler expects a single argument, the user's name")
 	}
 
 	name := cmd.args[0]
