@@ -10,17 +10,12 @@ import (
 	"github.com/rara-ch/blog-aggregator/internal/database"
 )
 
-func handlerFollow(s *state, cmd command) error {
+func handlerFollow(s *state, cmd command, user database.User) error {
 	if len(cmd.args) < 1 {
 		return errors.New("the follow handler expects a single argument, the url")
 	}
 
 	url := cmd.args[0]
-
-	user, err := s.db.GetUser(context.Background(), s.cfg.CurrentUsername)
-	if err != nil {
-		return fmt.Errorf("could not get user from database: %v", err)
-	}
 
 	feed, err := s.db.GetFeed(context.Background(), url)
 	if err != nil {
