@@ -15,7 +15,9 @@ func middlewareLoggedIn(handler func(s *state, cmd command, user database.User) 
 			return fmt.Errorf("could not get user from database: %v", err)
 		}
 
-		handler(s, cmd, user)
+		if err := handler(s, cmd, user); err != nil {
+			return fmt.Errorf("could not execute handler: %v", err)
+		}
 
 		return nil
 	}
